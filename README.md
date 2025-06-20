@@ -32,10 +32,10 @@ Created an instance with:
 
 Installed Terraform using the following commands:
 
-       wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-       echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee 
-       /etc/apt/sources.list.d/hashicorp.list
-       sudo apt update && sudo apt install terraform
+               wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+               echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee 
+              /etc/apt/sources.list.d/hashicorp.list
+              sudo apt update && sudo apt install terraform
 
 # Step 3: Create Terraform Configuration File (main.tf):
 
@@ -80,11 +80,11 @@ Created a file named main.tf with the following content:
 After creating the main.tf file, ran the following commands to provision the infrastructure:
 
 Initialize Terraform:
-             terraform init
+              terraform init
 Create an Execution Plan:
-             terraform plan
+              terraform plan
 Apply the Plan and Create the Resources:
-             terraform apply
+              terraform apply
 
 
 This created 3 EC2 instances:
@@ -99,28 +99,27 @@ This created 3 EC2 instances:
 On each node (master and both slaves), created a bash script named install.sh to install Docker and Kubernetes.
 
 Content of install.sh:
+
 !/bin/bash
       
 # Update the system
-sudo apt update -y
+              sudo apt update -y
 
 # Install Docker
-sudo apt install docker.io -y
+             sudo apt install docker.io -y
 
 # Start and Enable Docker
-sudo systemctl start docker
-sudo systemctl enable docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
 
 # Install Kubernetes Components
-sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl
-
-curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-
-echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl
+          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 To Run the Script:
+
                bash install.sh
                
 This script installed:
@@ -135,9 +134,11 @@ on both the master and slave instances.
 # Step 6: Initialize Kubernetes Cluster
 
 Switched to root user on the Master node:
-               sudo -i
+                        sudo -i
+                        
 Initialized the Kubernetes cluster using:
-               kubeadm init
+                       kubeadm init
+                       
 After running kubeadm init, Kubernetes provided a kubeadm join token command.
 
 # Step 7: Join Slave Nodes to the Master:
@@ -156,13 +157,15 @@ This successfully added both Slave nodes to the Kubernetes cluster.
 After initializing the cluster, configured kubectl to manage the Kubernetes cluster from the Master node:
 
 Ran the following commands on the Master:
-                mkdir -p $HOME/.kube
-                sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-                sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+                   mkdir -p $HOME/.kube
+                   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+                   sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 These commands set up the kubeconfig file properly, allowing the use of kubectl without needing sudo.
 
 Verified the nodes with:
+
                 kubectl get nodes
                 
 # Step 9: Install CNI (Container Network Interface) Plugin
@@ -170,18 +173,23 @@ Verified the nodes with:
 To enable networking between pods and nodes, installed the Weave Net CNI plugin.
 
 Ran the following command on the Master node:
+
                   kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 This deployed the Weave Net networking solution across the Kubernetes cluster.
 
 Checked the node status using:
+
                  kubectl get nodes 
+                 
 After a few minutes, all nodes showed status as Ready.
 
 # Step 10: Install Java (OpenJDK 17) on All Machines
 
 Installed OpenJDK 17 on the Master (Controller) and Slave nodes:
+
                  sudo apt update
                  sudo apt install openjdk-17-jdk -y
+                 
 Java installation was necessary for running Jenkins and other automation tools.
 
 # Step 11: Install Jenkins on Controller Machine
@@ -189,6 +197,7 @@ Java installation was necessary for running Jenkins and other automation tools.
 On the Controller machine (where Terraform is installed), installed Jenkins by creating a script named jenkins.sh.
 
 Content of jenkins.sh:
+
             #!/bin/bash
             sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
             https://pkg.jenkins.io/debian/jenkins.io-2023.key
@@ -199,7 +208,9 @@ Content of jenkins.sh:
             sudo apt-get install jenkins -y
             
 To Execute the Jenkins Installation:
+
             bash jenkins.sh
+            
 This installed Jenkins successfully on the Controller machine.
 
 # Step 12: Access Jenkins Dashboard
@@ -208,8 +219,9 @@ After installing Jenkins on the Controller machine, accessed the Jenkins UI via 
             http://<controller-machine-public-ip>:8080
             
 Initial Setup:
+
 1. Unlocked Jenkins using the initial admin password:
-   sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+          sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 2.Installed suggested plugins.
 3.Created the first admin user.
 4.Reached the Jenkins Dashboard successfully.
@@ -222,8 +234,11 @@ To automate builds and deployments from Jenkins to the Kubernetes environment, a
 
 Steps Followed:
 1.Navigated to:
+
    Jenkins Dashboard > Manage Jenkins > Manage Nodes and Clouds > New Node
+   
 2.Node Configuration:
+
     *Node Name: kub-master
     *Type: Permanent Agent
     *Remote root directory: /home/ubuntu/jenkins
@@ -235,6 +250,7 @@ Steps Followed:
                               Username: ubuntu
                               Private key: pasted contents of the .pem file directly
                Host Key Verification Strategy: Non verifying verification strategy
+               
 3.Clicked Save — the agent node was successfully added and came online.
 
 # Step 14: Create a Test Jenkins Pipeline Job
@@ -242,6 +258,7 @@ Steps Followed:
 To verify the agent node and the connection, created a simple test pipeline.
 
 Steps Followed:
+
 1.Dashboard > New Item
 2.Item Name: pipeline
 3.Project Type: Pipeline
@@ -260,12 +277,14 @@ Steps Followed:
                                }
                              }
  5.Clicked Save, then Build Now.
+ 
  Pipeline executed successfully and printed "Hello World" — confirming the Jenkins Agent node was working.
 
 #  Step 15: DockerHub Integration in Jenkins
  To enable Docker image pushes to DockerHub from Jenkins, DockerHub credentials were added under Jenkins Global Credentials.
  
  Steps:
+ 
  1.Go to Jenkins > Manage Jenkins > Credentials > (global) > Add Credentials.
  2.Chose:
       Kind: Username with password
@@ -273,6 +292,7 @@ Steps Followed:
       Password: <your_dockerhub_password>
 3.Saved it — Jenkins generated a Credentials ID:
       Example: e814f99d-8cc0-425d-840e-0c10c489f570
+      
 This ID is used in the Jenkins pipeline script for DockerHub authentication.
 
  # Step 16: Jenkins Pipeline Script (Docker + Kubernetes Deployment)
