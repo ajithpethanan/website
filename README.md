@@ -283,9 +283,9 @@ Steps Followed:
                                             agent {
                                                label 'Kub-master'
                                                  }
-                                         steps {
-                                             echo 'Hello World'
-                                             }
+                                            steps {
+                                               echo 'Hello World'
+                                              }
                                             }
                                          }
                                        }
@@ -346,9 +346,9 @@ This ID is used in the Jenkins pipeline script for DockerHub authentication.
                                          label 'Kub-master'
                                      }
                                      steps {
-                                          sh 'sudo docker build /home/ubuntu/jenkins/workspace/pipeline -t ritikdevoper123/demo1'
+                                          sh 'sudo docker build /home/ubuntu/jenkins/workspace/pipeline -t ajithpethanan/demo1'
                                           sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                                         sh 'docker push ritikdevoper123/demo1'
+                                         sh 'docker push ajithpethanan/demo1'
                                       }
                                    }
 
@@ -365,7 +365,8 @@ This ID is used in the Jenkins pipeline script for DockerHub authentication.
                             }
 
       
-      This pipeline:
+  # This pipeline:
+      
              Clones the GitHub repository
              Builds the Docker image
              Pushes it to DockerHub
@@ -393,7 +394,7 @@ deploy.yml
             spec:
                 containers:
                - name: webcontainer
-                 image: ritikdevoper123/demo1
+                 image: ajithpethanan/demo1
                  ports:
                   - containerPort: 80
 
