@@ -381,19 +381,21 @@ deploy.yml
          apiVersion: apps/v1
          kind: Deployment
          metadata:
-            name: webdeployment
+            name: nginx-deployment
+             labels:
+                 app: nginx
          spec:
-           replicas: 1
+           replicas: 2
            selector:
              matchLabels:
-               app: webapp
+               app: nginx
            template:
              metadata:
                labels:
-                 app: webapp
+                 app: nginx
             spec:
                 containers:
-               - name: webcontainer
+               - name: nginx
                  image: ajithpethanan/demo1
                  ports:
                   - containerPort: 80
@@ -404,14 +406,13 @@ deploy.yml
           apiVersion: v1
           kind: Service
           metadata:
-             name: webappsvc
+             name: my-nginx
           spec:
             type: NodePort
             selector:
-               app: webapp
+               app: nginx
             ports:
-              - protocol: TCP
-                port: 80
+              - port: 80
                 targetPort: 80
                 nodePort: 30007
 
