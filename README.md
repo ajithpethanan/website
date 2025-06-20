@@ -134,9 +134,11 @@ on both the master and slave instances.
 # Step 6: Initialize Kubernetes Cluster
 
 Switched to root user on the Master node:
+
                         sudo -i
                         
 Initialized the Kubernetes cluster using:
+
                        kubeadm init
                        
 After running kubeadm init, Kubernetes provided a kubeadm join token command.
@@ -148,6 +150,7 @@ Copied the kubeadm join command generated after the master initialization.
 On both Slave nodes, ran the copied kubeadm join command to connect the nodes to the Master.
 
 Example:
+
          kubeadm join <Master-IP>:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 
 This successfully added both Slave nodes to the Kubernetes cluster.
@@ -216,14 +219,19 @@ This installed Jenkins successfully on the Controller machine.
 # Step 12: Access Jenkins Dashboard
 
 After installing Jenkins on the Controller machine, accessed the Jenkins UI via a web browser:
+
             http://<controller-machine-public-ip>:8080
             
 Initial Setup:
 
 1. Unlocked Jenkins using the initial admin password:
+
           sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+   
 2.Installed suggested plugins.
+
 3.Created the first admin user.
+
 4.Reached the Jenkins Dashboard successfully.
 
 Jenkins was now ready for automating Kubernetes or Docker tasks.
@@ -233,6 +241,7 @@ Jenkins was now ready for automating Kubernetes or Docker tasks.
 To automate builds and deployments from Jenkins to the Kubernetes environment, added a new agent node in Jenkins.
 
 Steps Followed:
+
 1.Navigated to:
 
    Jenkins Dashboard > Manage Jenkins > Manage Nodes and Clouds > New Node
@@ -260,22 +269,27 @@ To verify the agent node and the connection, created a simple test pipeline.
 Steps Followed:
 
 1.Dashboard > New Item
+
 2.Item Name: pipeline
+
 3.Project Type: Pipeline
+
 4.Under the Pipeline section, added the following script:
-                       pipeline {
-                           agent none
-                              stages {
-                                  stage('Hello') {
-                                  agent {
-                                  label 'Kub-master'
-                                     }
-                             steps {
-                                 echo 'Hello World'
-                                  }
-                                 }
-                               }
-                             }
+
+                                  pipeline {
+                                         agent none
+                                      stages {
+                                         stage('Hello') {
+                                            agent {
+                                               label 'Kub-master'
+                                                 }
+                                         steps {
+                                             echo 'Hello World'
+                                             }
+                                            }
+                                         }
+                                       }
+                             
  5.Clicked Save, then Build Now.
  
  Pipeline executed successfully and printed "Hello World" — confirming the Jenkins Agent node was working.
@@ -286,11 +300,15 @@ Steps Followed:
  Steps:
  
  1.Go to Jenkins > Manage Jenkins > Credentials > (global) > Add Credentials.
+ 
  2.Chose:
+ 
       Kind: Username with password
       Username: <your_dockerhub_username>
       Password: <your_dockerhub_password>
+      
 3.Saved it — Jenkins generated a Credentials ID:
+
       Example: e814f99d-8cc0-425d-840e-0c10c489f570
       
 This ID is used in the Jenkins pipeline script for DockerHub authentication.
@@ -298,13 +316,13 @@ This ID is used in the Jenkins pipeline script for DockerHub authentication.
  # Step 16: Jenkins Pipeline Script (Docker + Kubernetes Deployment)
  
  A new Jenkins pipeline was created with the following script:
+ 
                               pipeline {
                                   agent none
                                   environment {
                                            DOCKERHUB_CREDENTIALS = credentials('e814f99d-8cc0-425d-840e-0c10c489f570')
                                             }
-
-                                   stages {
+                                     stages {
                                       stage('Hello') {
                                             agent {
                                                 label 'Kub-master'
@@ -346,6 +364,7 @@ This ID is used in the Jenkins pipeline script for DockerHub authentication.
                               }
                             }
 
+      
       This pipeline:
              Clones the GitHub repository
              Builds the Docker image
